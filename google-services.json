@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "568608907414",
+    "project_id": "seatask-project-1",
+    "storage_bucket": "seatask-project-1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:568608907414:android:e3cfa4d05e981690d062b7",
+        "android_client_info": {
+          "package_name": "com.seatec.seatasks"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCA1vGA5nMCAaIOOsQA_cNEggzM2hKjXbU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

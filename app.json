@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "SeaTask_Project",
+    "slug": "SeaTask_Project",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "seataskproject",
+    "userInterfaceStyle": "automatic",
+    "assets": "./assets/fonts/",
+    "newArchEnabled": true,
+    "android": {
+      "package": "com.seatec.seatasks",
+      "googleServicesFile": "./google-services.json"
+    },
+    "ios": {
+      "bundleIdentifier": "com.seatec.seatasks",
+      "googleServicesFile": "./GoogleService-Info.plist"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-notifications",
+      "@react-native-firebase/app",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ],
+      "expo-mail-composer"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
