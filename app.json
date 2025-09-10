@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "SeaTask_Project",
-    "slug": "SeaTask_Project",
-    "version": "1.0.0",
+    "name": "Seatec App",
+    "slug": "Seatec App",
+    "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/Logo-1.png",
     "scheme": "seataskproject",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -25,7 +25,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/Logo-Gif-1.gif",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
