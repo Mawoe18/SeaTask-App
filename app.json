@@ -7,15 +7,12 @@
     "icon": "./assets/images/icon.png",
     "scheme": "seataskproject",
     "userInterfaceStyle": "automatic",
-    "assets": "./assets/fonts/",
     "newArchEnabled": true,
     "android": {
-      "package": "com.seatec.seatasks",
-      "googleServicesFile": "./google-services.json"
+      "package": "com.seatec.seatasks"
     },
     "ios": {
-      "bundleIdentifier": "com.seatec.seatasks",
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "bundleIdentifier": "com.seatec.seatasks"
     },
     "web": {
       "bundler": "metro",
@@ -25,7 +22,6 @@
     "plugins": [
       "expo-router",
       "expo-notifications",
-      "@react-native-firebase/app",
       [
         "expo-splash-screen",
         {
@@ -39,6 +35,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "b1199c73-e59c-4593-b976-56c68302f238"
+      }
     }
   }
 }

@@ -16,8 +16,6 @@
     "@pdf-lib/fontkit": "^1.1.1",
     "@react-native-async-storage/async-storage": "^2.1.2",
     "@react-native-community/datetimepicker": "8.4.1",
-    "@react-native-firebase/app": "^22.4.0",
-    "@react-native-firebase/firestore": "^22.4.0",
     "@react-native-picker/picker": "2.11.1",
     "@react-navigation/bottom-tabs": "^7.3.10",
     "@react-navigation/elements": "^2.3.8",
@@ -38,7 +36,7 @@
     "expo-linking": "~7.1.7",
     "expo-mail-composer": "~14.1.6",
     "expo-notifications": "^0.31.4",
-    "expo-router": "~5.1.5",
+    "expo-router": "~5.1.6",
     "expo-sharing": "^13.1.5",
     "expo-splash-screen": "~0.30.10",
     "expo-status-bar": "~2.2.3",
@@ -58,12 +56,9 @@
     "react-native": "0.79.5",
     "react-native-add-calendar-event": "^5.0.0",
     "react-native-calendars": "^1.1313.0",
-    "react-native-document-picker": "^9.3.1",
-    "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-pdf": "^6.7.7",
     "react-native-picker-select": "^9.3.1",
-    "react-native-push-notification": "^8.1.1",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "^5.4.0",
     "react-native-screens": "~4.11.1",
@@ -77,12 +72,32 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~19.0.10",
-    "@types/react-native-document-picker": "^3.1.0",
     "@types/react-native-share": "^3.3.8",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~9.2.0",
     "metro-react-native-babel-preset": "^0.77.0",
     "typescript": "~5.8.3"
   },
-  "private": true
+  "private": true,
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": [
+          "react-native-add-calendar-event",
+          "@pdf-lib/fontkit",
+          "ajv",
+          "ajv-keywords",
+          "autoprefixer",
+          "buffer",
+          "firebase",
+          "git",
+          "ical-generator",
+          "moment",
+          "pdf-lib",
+          "postcss"
+          ],
+        "listUnknownPackages": false
+      }
+    }
+  }
 }
