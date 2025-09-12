@@ -11,15 +11,18 @@ import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import * as MailComposer from 'expo-mail-composer';
 import { PDF_DIRECTORY, createPdfDirectory } from '../index';
+import UCCForm from './UCCForm';
+import type { UCCFormData } from './UCCForm';
+import { generateUCCMaintenancePDF } from '../../src/pdfTemplates/uccMaintenanceTemplate'; // You will need to create this PDF template file
 
-// Enhanced Type Definitions
-interface BaseMaintenanceFormData {
+// Export interfaces for use in other files like UCCForm.tsx
+export interface BaseMaintenanceFormData {
     customerName: string;
     officeLocation: string;
-    quarterYear?: string; // Optional
-    periodType?: string; // Optional for CCTV
-    subPeriod?: string; // Optional for CCTV
-    year?: string; // Optional for CCTV
+    quarterYear?: string; // Optional for Alcatel/Grandstream
+    periodType?: string; // Optional for CCTV/UCC
+    subPeriod?: string; // Optional for CCTV/UCC
+    year?: string; // Optional for CCTV/UCC
     hoursSpent: string;
     customerRepName: string;
     customerDate: string;
@@ -31,7 +34,7 @@ interface BaseMaintenanceFormData {
     seatecSignature: string;
 }
 
-interface AlcatelFormData extends BaseMaintenanceFormData {
+export interface AlcatelFormData extends BaseMaintenanceFormData {
     systemModel: string;
     release: string;
     maintenanceItems: Record<string, { equipped?: string; remark: 'done' | 'not_done' | 'na' | '' }>;
@@ -54,7 +57,7 @@ interface AlcatelFormData extends BaseMaintenanceFormData {
     };
 }
 
-interface GrandstreamFormData extends BaseMaintenanceFormData {
+export interface GrandstreamFormData extends BaseMaintenanceFormData {
     systemModel: string;
     release: string;
     maintenanceItems: Record<string, { equipped?: string; remark: 'done' | 'not_done' | 'na' | '' }>;
@@ -74,7 +77,8 @@ interface GrandstreamFormData extends BaseMaintenanceFormData {
         diagnosis: string;
     };
 }
-interface CCTVFormData extends BaseMaintenanceFormData {
+
+export interface CCTVFormData extends BaseMaintenanceFormData {
     cctvModel: string;
     periodType: string; // Required for CCTV
     subPeriod: string; // Required for CCTV
@@ -97,11 +101,11 @@ interface CCTVFormData extends BaseMaintenanceFormData {
     specialRemarks: string;
 }
 
-type FormData = AlcatelFormData | GrandstreamFormData | CCTVFormData;
+export type FormData = AlcatelFormData | GrandstreamFormData | CCTVFormData | UCCFormData;
 
-interface FormComponentProps {
+export interface FormComponentProps {
     formData: FormData;
-    onFieldChange: (field: string, value: string, category?: string, subField?: string) => void;
+    onFieldChange: (field: string, value: any, category?: string, subField?: string) => void; // Changed value to any
     customerSignature: string | null;
     seatecSignature: string | null;
     onShowCustomerSignatureModal: () => void;
@@ -109,7 +113,6 @@ interface FormComponentProps {
     onClearCustomerSignature: () => void;
     onClearSeatecSignature: () => void;
 }
-
 // Form initialization functions
 const initializeAlcatelForm = (): AlcatelFormData => ({
     customerName: '',
@@ -257,6 +260,99 @@ const initializeCCTVForm = (): CCTVFormData => ({
     seatecSignature: ''
 });
 
+const initializeUCCForm = (): UCCFormData => ({
+    customerName: '',
+    officeLocation: '',
+    periodType: '',
+    subPeriod: '',
+    year: '',
+    sectionATasks: {
+        coreSwitch: '',
+        accessSwitches: '',
+        wiredDataPoints: '',
+        patchPanels: '',
+        networkCabinets: '',
+        wiFiAccessPoints: '',
+        rackManagement: '',
+        systemUpgradeChecks: '',
+        inspectMounting: '',
+    },
+    networkStatus: {
+        wiredPorts: { total: '', working: '', faulty: '' },
+        wirelessAP: { total: '', working: '', faulty: '' },
+    },
+    sectionBTasks: {
+        nvrRecording: '',
+        nvrDiskHealth: '',
+        nvrDateSync: '',
+        nvrFirmware: '',
+        nvrCleanFan: '',
+        ipLiveFeed: '',
+        ipCleanLens: '',
+        ipInspectCabling: '',
+        ipMotionDetection: '',
+        ipPoe: '',
+    },
+    cameraStatus: {
+        dome: '',
+        bullet: '',
+        ptz: '',
+        working: '',
+        faulty: '',
+    },
+    diskStatus: {
+        hdd: '',
+        ssd: '',
+        working: '',
+        faulty: '',
+    },
+    sectionCTasks: {
+        dstvAlignment: '',
+        dstvCleanSurface: '',
+        dstvInspectLNB: '',
+        decoderBooting: '',
+        decoderChannels: '',
+        decoderFirmware: '',
+        decoderHdmi: '',
+        cablingCoaxial: '',
+        cablingWaterIngress: '',
+    },
+    decoderStatus: {
+        total: '',
+        working: '',
+        faulty: '',
+    },
+    sectionDTasks: {
+        displayClarity: '',
+        displayFunctionality: '',
+        displayInputs: '',
+        displayVC: '',
+        displayClean: '',
+        audioMics: '',
+        audioPerformance: '',
+        audioSpeakers: '',
+        audioDsp: '',
+        controlPanel: '',
+        controlTouch: '',
+        controlPresets: '',
+        controlNetwork: '',
+        connectPorts: '',
+        connectCallSystems: '',
+        connectCabling: '',
+        connectFirmware: '',
+    },
+    diagnosisReport: '',
+    hoursSpent: '',
+    customerRepName: '',
+    customerDate: '',
+    customerPosition: '',
+    customerContact: '',
+    seatecRepName: '',
+    seatecDate: '',
+    seatecPosition: '',
+    customerSignature: '',
+    seatecSignature: ''
+});
 
 const MaintenanceFormSystem = () => {
     const [selectedForm, setSelectedForm] = useState<string>('');
@@ -280,6 +376,9 @@ const MaintenanceFormSystem = () => {
                 break;
             case 'cctv':
                 setFormData(initializeCCTVForm());
+                break;
+            case 'ucc':
+                setFormData(initializeUCCForm());
                 break;
             default:
                 setFormData({} as FormData);
@@ -328,19 +427,18 @@ const MaintenanceFormSystem = () => {
     }, []);
 
     // Validate form data before submission
-    // In validateFormData function
+    // In validateFormData:
     const validateFormData = (data: FormData, customerSig: string | null, seatecSig: string | null): string | null => {
         if (!data.customerName.trim()) return 'Customer name is required';
         if (!data.officeLocation.trim()) return 'Office location is required';
 
-        // Form-specific period validation
-        if ('cctvModel' in data) {
-            // CCTV form validation
+        // Period validation for forms with periodType (CCTV and UCC)
+        if ('periodType' in data) {
             if (!data.periodType.trim()) return 'Period type is required';
             if (!data.subPeriod.trim()) return 'Sub period is required';
             if (!data.year.trim()) return 'Year is required';
         } else {
-            // Alcatel and Grandstream form validation
+            // Quarter/Year for Alcatel and Grandstream
             if (!data.quarterYear?.trim()) return 'Quarter/Year is required';
         }
 
@@ -359,6 +457,10 @@ const MaintenanceFormSystem = () => {
         }
         if ('cctvModel' in data && !data.cctvModel.trim()) {
             return 'CCTV model is required';
+        }
+        // Optional: for UCC
+        if ('diagnosisReport' in data) {
+            // If you want to require it: if (!data.diagnosisReport.trim()) return 'Diagnosis report is required';
         }
 
         return null;
@@ -409,6 +511,9 @@ const MaintenanceFormSystem = () => {
                             break;
                         case 'cctv':
                             await generateCCTVMaintenancePDF(exportFormData as CCTVFormData, filePath);
+                            break;
+                        case 'ucc':
+                            await generateUCCMaintenancePDF(exportFormData as UCCFormData, filePath);
                             break;
                         default:
                             throw new Error('Invalid form type');
@@ -467,7 +572,7 @@ const MaintenanceFormSystem = () => {
             }
 
             await MailComposer.composeAsync({
-                recipients: ['mawoe.noagbe@seatectelecom.com', 'elias.adams@seatectelecom.com', 'emmanuella.aidoo-gyamfi@seatectelecom.com'],
+                recipients: ['support@seatectelecom.com',],
                 subject: `Maintenance Report - ${formData.customerName || 'Customer'} - ${selectedForm.charAt(0).toUpperCase() + selectedForm.slice(1)}`,
                 body: 'Please find the attached routine maintenance report PDF.',
                 attachments: pdfPath ? [pdfPath] : [],
@@ -526,6 +631,8 @@ const MaintenanceFormSystem = () => {
                 return <GrandstreamForm {...commonProps} />;
             case 'cctv':
                 return <CCTVForm {...commonProps} />;
+            case 'ucc':
+                return <UCCForm {...commonProps} />;
             default:
                 return null;
         }
@@ -550,6 +657,7 @@ const MaintenanceFormSystem = () => {
                         <Picker.Item label="Alcatel Lucent Telephone System" value="alcatel" />
                         <Picker.Item label="Grandstream Telephone System" value="grandstream" />
                         <Picker.Item label="CCTV System" value="cctv" />
+                        <Picker.Item label="UCC Service and Routine Maintenance" value="ucc" /> {/* Added */}
                     </Picker>
                 </View>
             </View>
@@ -1490,11 +1598,11 @@ const CCTVForm = ({
     ];
 
     const cameraTypes = [
-        { type: 'dome', label: 'Dome Camera' },
-        { type: 'bullet', label: 'Bullet Camera' },
-        { type: 'ptz', label: 'PTZ Camera' },
-        { type: 'camera360', label: '360 Camera' }
-    ];
+    { type: 'dome', label: 'Dome Camera' },
+    { type: 'bullet', label: 'Bullet Camera' },
+    { type: 'ptz', label: 'PTZ Camera' },
+    { type: 'camera360', label: '360 Camera' }
+] as const;
 
     let subOptions: string[] = [];
     if (cctvData.periodType === 'Month') {
@@ -1723,7 +1831,7 @@ const CCTVForm = ({
                     value={cctvData.hoursSpent}
                     onChangeText={(text) => onFieldChange('hoursSpent', text)}
                     className="border border-gray-300 p-3 rounded-lg bg-gray-50"
-                    placeholder="Enter hours spent"                    
+                    placeholder="Enter hours spent"
                 />
             </View>
 

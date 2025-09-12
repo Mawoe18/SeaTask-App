@@ -33,7 +33,7 @@ const CybersecuritySurveyForm = ({
         "Would you be interested in FortiSIEM as a service?",
         "Do you have a data backup and disaster recovery plan?",
         "Is your sensitive data encrypted (both in transit and at rest)?",
-        "Do you require help in securing your remote workforce?"
+        "Do you require help in securing your remote workforce(VPN,Endpoint Security)?"
     ];
 
     return (

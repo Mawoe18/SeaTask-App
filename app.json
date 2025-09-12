@@ -1,10 +1,10 @@
 {
   "expo": {
     "name": "Seatec App",
-    "slug": "Seatec App",
+    "slug": "seatec_app",
     "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/images/Logo-1.png",
+    "icon": "./assets/images/Square_Logo-1.png",
     "scheme": "seataskproject",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -39,7 +39,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "b1199c73-e59c-4593-b976-56c68302f238"
+        "projectId": "6279f588-9960-4b90-a3c1-965f89d569a3"
       }
     }
   }
