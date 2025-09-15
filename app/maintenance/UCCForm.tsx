@@ -2,7 +2,6 @@
 import { Picker } from '@react-native-picker/picker';
 import { Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons'; // Fixed import
-import React from 'react';
 import { BaseMaintenanceFormData, FormComponentProps } from './index'; // Import from index.tsx
 
 export interface UCCFormData extends BaseMaintenanceFormData {
@@ -127,9 +126,9 @@ const UCCForm = ({
     ];
 
     let subOptions: string[] = [];
-    if (uccData.periodType === 'Monthly') {
-        subOptions = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    } else if (uccData.periodType === 'Quarterly') {
+    if (uccData.periodType === 'Month') {
+        subOptions = ['1st', '2nd', '3rd', '4th', '5th', '6th','7th', '8th', '9th', '10th', '11th', '12th'];
+    } else if (uccData.periodType === 'Quarter') {
         subOptions = ['1st', '2nd', '3rd', '4th'];
     } else if (uccData.periodType === 'Bi-annual') {
         subOptions = ['1st', '2nd'];
@@ -184,8 +183,8 @@ const UCCForm = ({
                         }}
                     >
                         <Picker.Item label="Select Frequency" value="" />
-                        <Picker.Item label="Monthly" value="Monthly" />
-                        <Picker.Item label="Quarterly" value="Quarterly" />
+                        <Picker.Item label="Monthly" value="Month" />
+                        <Picker.Item label="Quarterly" value="Quarter" />
                         <Picker.Item label="Bi-annual" value="Bi-annual" />
                     </Picker>
                 </View>

@@ -1,4 +1,3 @@
-// uccMaintenanceTemplate.ts
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import * as FileSystem from 'expo-file-system';
 import { Asset } from 'expo-asset';
@@ -52,16 +51,14 @@ export async function generateUCCMaintenancePDF(
     }
   };
 
-  // Helper for wrapping text with different widths for first and subsequent lines
-  const wrapTextToFitLine = (text: string, font: any, fontSize: number, firstLineWidth: number, subsequentLineWidth: number): { lines: string[], count: number } => {
+  // Helper for wrapping text with consistent width for all lines
+  const wrapTextToFitLine = (text: string, font: any, fontSize: number, maxWidth: number): { lines: string[], count: number } => {
     const lines: string[] = [];
     const words = text.split(' ');
     let currentLine = '';
-    let isFirstLine = true;
 
     for (const word of words) {
       const testLine = currentLine ? `${currentLine} ${word}` : word;
-      const maxWidth = isFirstLine ? firstLineWidth : subsequentLineWidth;
       const testWidth = font.widthOfTextAtSize(testLine, fontSize);
 
       if (testWidth <= maxWidth) {
@@ -70,19 +67,16 @@ export async function generateUCCMaintenancePDF(
         if (currentLine) {
           lines.push(currentLine);
           currentLine = word;
-          isFirstLine = false;
         } else {
           // Handle very long words
           let tempWord = word;
           while (tempWord.length > 0) {
-            const currentMaxWidth = isFirstLine ? firstLineWidth : subsequentLineWidth;
             let i = tempWord.length;
-            while (i > 0 && font.widthOfTextAtSize(tempWord.substring(0, i), fontSize) > currentMaxWidth) {
+            while (i > 0 && font.widthOfTextAtSize(tempWord.substring(0, i), fontSize) > maxWidth) {
               i--;
             }
             lines.push(tempWord.substring(0, i));
             tempWord = tempWord.substring(i);
-            isFirstLine = false;
           }
         }
       }
@@ -142,7 +136,7 @@ export async function generateUCCMaintenancePDF(
 
   // Draw footer
   const drawFooter = (page: any, height: number) => {
-    const footerY = 30; // Reduced footer height
+    const footerY = 30;
     const footerText1 = "Empowering You to Win with IT";
     const footerWidth1 = helveticaBold.widthOfTextAtSize(footerText1, 10);
     page.drawText(footerText1, {
@@ -186,18 +180,19 @@ export async function generateUCCMaintenancePDF(
 
   // Initial header on first page
   drawHeader(page, width, height);
-  let y = height - 140; // Adjusted starting y position
+  let y = height - 140;
 
   // Customer info - no overlaps, proper spacing
   addNewPageIfNeeded(20);
   page.drawText('CUSTOMER:', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-  page.drawText(` ${formData.customerName || ''}`, { x: 135, y, size: 12, font: helveticaBold, color: primaryBlue });
+  page.drawText(formData.customerName || '', { x: 135, y, size: 12, font: helveticaBold, color: primaryBlue });
   
   page.drawText('OFFICE LOC.:', { x: width / 2 - 50, y, size: 12, font: helveticaBold, color: blackColor });
-  page.drawText(` ${formData.officeLocation || ''}`, { x: width / 2 + 25, y, size: 12, font: helveticaBold, color: primaryBlue });
+  page.drawText(formData.officeLocation || '', { x: width / 2 + 30, y, size: 12, font: helveticaBold, color: primaryBlue });
   
-  page.drawText('PERIOD:', { x: width - 150, y, size: 12, font: helveticaBold, color: blackColor });
-  page.drawText(` ${formData.subPeriod || ''} ${formData.periodType || ''}, ${formData.year || ''}`, { x: width - 85, y, size: 12, font: helveticaBold, color: primaryBlue });
+  page.drawText('PERIOD:', { x: width - 170, y, size: 12, font: helveticaBold, color: blackColor });
+  const periodText = `${formData.subPeriod || ''} ${formData.periodType || ''}, ${formData.year || ''}`;
+  page.drawText(periodText, { x: width - 120, y, size: 12, font: helveticaBold, color: primaryBlue });
   y -= 25;
 
   // Maintenance Frequency
@@ -205,18 +200,18 @@ export async function generateUCCMaintenancePDF(
   page.drawText('MAINTENANCE FREQUENCY: ', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
   const freqStartX = 50 + helveticaBold.widthOfTextAtSize('MAINTENANCE FREQUENCY: ', 12);
   page.drawText('MONTHLY ', { x: freqStartX, y, size: 12, font: helvetica, color: blackColor });
-  page.drawRectangle({ x: freqStartX + 55, y: y + 1, width: 10, height: 10, borderWidth: 1, borderColor: blackColor });
-  if (formData.periodType === 'Monthly') page.drawText('X', { x: freqStartX + 58, y: y + 1, size: 10, font: helveticaBold, color: blackColor });
+  page.drawRectangle({ x: freqStartX + 58, y: y + 1, width: 10, height: 10, borderWidth: 1, borderColor: blackColor });
+  if (formData.periodType === 'Month') page.drawText('X', { x: freqStartX + 61, y: y + 1, size: 10, font: helveticaBold, color: blackColor });
   
   const quarterlyStartX = freqStartX + 90;
   page.drawText('QUARTERLY ', { x: quarterlyStartX, y, size: 12, font: helvetica, color: blackColor });
-  page.drawRectangle({ x: quarterlyStartX + 65, y: y + 1, width: 10, height: 10, borderWidth: 1, borderColor: blackColor });
-  if (formData.periodType === 'Quarterly') page.drawText('X', { x: quarterlyStartX + 68, y: y + 1, size: 10, font: helveticaBold, color: blackColor });
+  page.drawRectangle({ x: quarterlyStartX + 73, y: y + 1, width: 10, height: 10, borderWidth: 1, borderColor: blackColor });
+  if (formData.periodType === 'Quarter') page.drawText('X', { x: quarterlyStartX + 75, y: y + 1, size: 10, font: helveticaBold, color: blackColor });
   
   const biannualStartX = quarterlyStartX + 100;
   page.drawText('BI-ANNUAL ', { x: biannualStartX, y, size: 12, font: helvetica, color: blackColor });
-  page.drawRectangle({ x: biannualStartX + 65, y: y + 1, width: 10, height: 10, borderWidth: 1, borderColor: blackColor });
-  if (formData.periodType === 'Bi-annual') page.drawText('X', { x: biannualStartX + 68, y: y + 1, size: 10, font: helveticaBold, color: blackColor });
+  page.drawRectangle({ x: biannualStartX + 68, y: y + 1, width: 10, height: 10, borderWidth: 1, borderColor: blackColor });
+  if (formData.periodType === 'Bi-annual') page.drawText('X', { x: biannualStartX + 71, y: y + 1, size: 10, font: helveticaBold, color: blackColor });
   y -= 25;
 
   // Section A: LAN/WAN Infrastructure
@@ -232,38 +227,56 @@ export async function generateUCCMaintenancePDF(
   page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: borderColor });
   y -= 15;
 
-  // Section A tasks with proper content and spacing
+  // Section A tasks with corrected keys to match frontend
   const sectionATasksList = [
-    { component: 'Core Switch', desc: 'Check LED indicators for port/link/activity status', remark: formData.sectionATasks?.coreSwitch || '' },
-    { component: 'Access Switches', desc: 'Check all network switches for uptime, port activity, and temperature', remark: formData.sectionATasks?.accessSwitches || '' },
-    { component: 'Wired Data Points', desc: 'Test connectivity on random data points', remark: formData.sectionATasks?.wiredDataPoints || '' },
-    { component: 'Patch Panels', desc: 'Check for error/discard packets on interfaces', remark: formData.sectionATasks?.patchPanels || '' },
-    { component: 'Network Cabinets', desc: 'Clean ports, air vents and fans for dust or oxidation', remark: formData.sectionATasks?.networkCabinets || '' },
-    { component: 'Wi-Fi Access Points', desc: 'Check Wi-Fi signal coverage and performance', remark: formData.sectionATasks?.wifiAccessPoints || '' },
-    { component: 'Rack Management', desc: 'Ensure proper labeling and cable management in rack', remark: formData.sectionATasks?.rackManagement || '' },
-    { component: 'System Upgrade Checks', desc: 'Check for firmware updates or patching needs', remark: formData.sectionATasks?.systemUpgrade || '' },
-    { component: '', desc: 'Inspect Mounting and Cabling for Physical Integrity', remark: formData.sectionATasks?.physicalIntegrity || '' }
+    { component: 'Core Switch', desc: 'Check LED indicators for port/link/activity status', key: 'coreSwitch' },
+    { component: 'Access Switches', desc: 'Check all network switches for uptime, port activity, and temperature', key: 'accessSwitches' },
+    { component: 'Wired Data Points', desc: 'Test connectivity on random data points', key: 'wiredDataPoints' },
+    { component: 'Patch Panels', desc: 'Check for error/discard packets on interfaces', key: 'patchPanels' },
+    { component: 'Network Cabinets', desc: 'Clean ports, air vents and fans for dust or oxidation', key: 'networkCabinets' },
+    { component: 'Wi-Fi Access Points', desc: 'Check Wi-Fi signal coverage and performance', key: 'wiFiAccessPoints' },
+    { component: 'Rack Management', desc: 'Ensure proper labeling and cable management in rack', key: 'rackManagement' },
+    { component: 'System Upgrade Checks', desc: 'Check for firmware updates or patching needs', key: 'systemUpgradeChecks' },
+    { component: '', desc: 'Inspect Mounting and Cabling for Physical Integrity', key: 'inspectMounting' }
   ];
 
   sectionATasksList.forEach((task, index) => {
-    addNewPageIfNeeded(15);
+    addNewPageIfNeeded(40);
+    const componentWidth = 90;
+    const descWidth = 250;
+    const remarkWidth = 100;
     
-    // Component column - bold
-    page.drawText(task.component, { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
+    // Component column
+    const componentLines = wrapTextToFitLine(task.component, helvetica, 12, componentWidth);
+    let currentY = y;
+    componentLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: 50, y: currentY, size: 12, font: helvetica, color: blackColor });
+      currentY -= 14;
+    });
     
-    // Description column - bold
-    page.drawText(task.desc, { x: 150, y, size: 12, font: helveticaBold, color: blackColor });
+    // Description column
+    const descLines = wrapTextToFitLine(task.desc, helvetica, 12, descWidth);
+    currentY = y;
+    descLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: 150, y: currentY, size: 12, font: helvetica, color: blackColor });
+      currentY -= 14;
+    });
     
-    // Status/Remarks column - direct from formData, bold blue
-    const remarkText = task.remark || '';
-    page.drawText(remarkText, { x: width - 150, y, size: 12, font: helveticaBold, color: primaryBlue });
+    // Status/Remarks column - Use raw formData value
+    const remarkValue = formData.sectionATasks?.[task.key] || '';
+    const remarkLines = wrapTextToFitLine(remarkValue, helveticaBold, 12, remarkWidth);
+    currentY = y;
+    remarkLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: width - 150, y: currentY, size: 12, font: helveticaBold, color: primaryBlue });
+      currentY -= 14;
+    });
     
-    y -= 12; // Reduced spacing between content
+    y -= Math.max(componentLines.count, descLines.count, remarkLines.count) * 14 + 2;
   });
 
-  y -= 20;
+  y -= 22;
 
-  // Network totals - with dotted lines and proper formatting
+  // Network totals
   addNewPageIfNeeded(40);
   page.drawText('Total No. of Wired Data Ports:', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
   drawDottedLine(page, 250, 300, y);
@@ -290,74 +303,94 @@ export async function generateUCCMaintenancePDF(
   page.drawText('Faulty:', { x: 450, y, size: 12, font: helveticaBold, color: blackColor });
   drawDottedLine(page, 500, width - 50, y);
   page.drawText(formData.networkStatus?.wirelessAP?.faulty || '', { x: 500, y, size: 12, font: helveticaBold, color: primaryBlue });
-  y -= 25;
+  y -= 27;
 
   // Section B: CCTV - IP Surveillance System
   addNewPageIfNeeded(20);
   page.drawText('SECTION B: CCTV - IP SURVEILLANCE SYSTEM', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-  y -= 20;
+  y -= 22;
 
   // NVR subsection
   addNewPageIfNeeded(20);
   page.drawText('NVR', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
   y -= 15;
 
-  // Table header for NVR
-  page.drawText('MAINTENANCE TASK DESCRIPTION', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-  page.drawText('STATUS / REMARKS', { x: width - 150, y, size: 12, font: helveticaBold, color: blackColor });
-  y -= 15;
   page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: borderColor });
   y -= 15;
 
   const nvrTasks = [
-    { desc: 'Verify recording for all camera channels', remark: formData.sectionBTasks?.nvrRecording || '' },
-    { desc: 'Check Disk(s) health and available storage space', remark: formData.sectionBTasks?.nvrDiskHealth || '' },
-    { desc: 'Confirm date/time synchronization', remark: formData.sectionBTasks?.nvrDateSync || '' },
-    { desc: 'Update firmware and backup configuration', remark: formData.sectionBTasks?.nvrFirmware || '' },
-    { desc: 'Clean fan and inspect for overheating', remark: formData.sectionBTasks?.nvrCleanFan || '' },
+    { desc: 'Verify recording for all camera channels', key: 'nvrRecording' },
+    { desc: 'Check Disk(s) health and available storage space', key: 'nvrDiskHealth' },
+    { desc: 'Confirm date/time synchronization', key: 'nvrDateSync' },
+    { desc: 'Update firmware and backup configuration', key: 'nvrFirmware' },
+    { desc: 'Clean fan and inspect for overheating', key: 'nvrCleanFan' },
   ];
 
   nvrTasks.forEach((task, index) => {
-    addNewPageIfNeeded(15);
-    page.drawText(task.desc, { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-    drawDottedLine(page, width - 150, width - 50, y);
-    const remarkText = task.remark || '';
-    page.drawText(remarkText, { x: width - 150, y, size: 12, font: helveticaBold, color: primaryBlue });
-    y -= 12;
+    addNewPageIfNeeded(40);
+    const descWidth = 350;
+    const remarkWidth = 100;
+    
+    const descLines = wrapTextToFitLine(task.desc, helvetica, 12, descWidth);
+    let currentY = y;
+    descLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: 50, y: currentY, size: 12, font: helvetica, color: blackColor });
+      currentY -= 14;
+    });
+    
+    const remarkValue = formData.sectionBTasks?.[task.key] || '';
+    const remarkLines = wrapTextToFitLine(remarkValue, helveticaBold, 12, remarkWidth);
+    currentY = y;
+    remarkLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: width - 150, y: currentY, size: 12, font: helveticaBold, color: primaryBlue });
+      currentY -= 14;
+    });
+    
+    y -= Math.max(descLines.count, remarkLines.count) * 14 + 2;
   });
 
-  y -= 20;
+  y -= 22;
 
   // IP Cameras subsection
   addNewPageIfNeeded(20);
   page.drawText('IP Cameras', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
   y -= 15;
 
-  // Table header for IP Cameras
-  page.drawText('MAINTENANCE TASK DESCRIPTION', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-  page.drawText('STATUS / REMARKS', { x: width - 150, y, size: 12, font: helveticaBold, color: blackColor });
-  y -= 15;
   page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: borderColor });
   y -= 15;
 
   const ipCameraTasks = [
-    { desc: 'Check live video feed and Image clarity', remark: formData.sectionBTasks?.ipLiveFeed || '' },
-    { desc: 'Clean camera lens and check for obstructions', remark: formData.sectionBTasks?.ipCleanLens || '' },
-    { desc: 'Inspect Cabling and RJ45 connectors', remark: formData.sectionBTasks?.ipInspectCabling || '' },
-    { desc: 'Confirm motion detection or event triggers', remark: formData.sectionBTasks?.ipMotionDetection || '' },
-    { desc: 'Validate PoE functionality or power supply status', remark: formData.sectionBTasks?.ipPoe || '' },
+    { desc: 'Check live video feed and Image clarity', key: 'ipLiveFeed' },
+    { desc: 'Clean camera lens and check for obstructions', key: 'ipCleanLens' },
+    { desc: 'Inspect Cabling and RJ45 connectors', key: 'ipInspectCabling' },
+    { desc: 'Confirm motion detection or event triggers', key: 'ipMotionDetection' },
+    { desc: 'Validate PoE functionality or power supply status', key: 'ipPoe' },
   ];
 
   ipCameraTasks.forEach((task, index) => {
-    addNewPageIfNeeded(15);
-    page.drawText(task.desc, { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-    drawDottedLine(page, width - 150, width - 50, y);
-    const remarkText = task.remark || '';
-    page.drawText(remarkText, { x: width - 150, y, size: 12, font: helveticaBold, color: primaryBlue });
-    y -= 12;
+    addNewPageIfNeeded(40);
+    const descWidth = 350;
+    const remarkWidth = 100;
+    
+    const descLines = wrapTextToFitLine(task.desc, helvetica, 12, descWidth);
+    let currentY = y;
+    descLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: 50, y: currentY, size: 12, font: helvetica, color: blackColor });
+      currentY -= 14;
+    });
+    
+    const remarkValue = formData.sectionBTasks?.[task.key] || '';
+    const remarkLines = wrapTextToFitLine(remarkValue, helveticaBold, 12, remarkWidth);
+    currentY = y;
+    remarkLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: width - 150, y: currentY, size: 12, font: helveticaBold, color: primaryBlue });
+      currentY -= 14;
+    });
+    
+    y -= Math.max(descLines.count, remarkLines.count) * 14 + 2;
   });
 
-  y -= 20;
+  y -= 22;
 
   // Camera totals
   addNewPageIfNeeded(20);
@@ -382,7 +415,7 @@ export async function generateUCCMaintenancePDF(
   page.drawText('Faulty:', { x: 160, y, size: 12, font: helveticaBold, color: blackColor });
   drawDottedLine(page, 210, 260, y);
   page.drawText(formData.cameraStatus?.faulty || '', { x: 210, y, size: 12, font: helveticaBold, color: primaryBlue });
-  y -= 25;
+  y -= 27;
 
   // Disk totals
   addNewPageIfNeeded(20);
@@ -401,99 +434,129 @@ export async function generateUCCMaintenancePDF(
   page.drawText('Faulty:', { x: 500, y, size: 12, font: helveticaBold, color: blackColor });
   drawDottedLine(page, 560, width - 50, y);
   page.drawText(formData.diskStatus?.faulty || '', { x: 560, y, size: 12, font: helveticaBold, color: primaryBlue });
-  y -= 25;
+  y -= 27;
 
   // Section C: DSTV System
   addNewPageIfNeeded(20);
   page.drawText('SECTION C: DSTV SYSTEM (Decoders, Dish, Cabling)', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-  y -= 20;
+  y -= 22;
 
   // DSTV Dish subsection
   addNewPageIfNeeded(20);
   page.drawText('DSTV Dish', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
   y -= 15;
 
-  // Table header for DSTV Dish
-  page.drawText('MAINTENANCE TASK DESCRIPTION', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-  page.drawText('STATUS / REMARKS', { x: width - 150, y, size: 12, font: helveticaBold, color: blackColor });
-  y -= 15;
   page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: borderColor });
   y -= 15;
 
   const dstvDishTasks = [
-    { desc: 'Inspect alignment and mounting stability', remark: formData.sectionCTasks?.dstvAlignment || '' },
-    { desc: 'Clean surface and check for rust or corrosion', remark: formData.sectionCTasks?.dstvCleanSurface || '' },
-    { desc: 'Inspect dish alignment and LNB', remark: formData.sectionCTasks?.dstvInspectLNB || '' },
+    { desc: 'Inspect alignment and mounting stability', key: 'dstvAlignment' },
+    { desc: 'Clean surface and check for rust or corrosion', key: 'dstvCleanSurface' },
+    { desc: 'Inspect dish alignment and LNB', key: 'dstvInspectLNB' },
   ];
 
   dstvDishTasks.forEach((task, index) => {
-    addNewPageIfNeeded(15);
-    page.drawText(task.desc, { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-    drawDottedLine(page, width - 150, width - 50, y);
-    const remarkText = task.remark || '';
-    page.drawText(remarkText, { x: width - 150, y, size: 12, font: helveticaBold, color: primaryBlue });
-    y -= 12;
+    addNewPageIfNeeded(40);
+    const descWidth = 350;
+    const remarkWidth = 100;
+    
+    const descLines = wrapTextToFitLine(task.desc, helvetica, 12, descWidth);
+    let currentY = y;
+    descLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: 50, y: currentY, size: 12, font: helvetica, color: blackColor });
+      currentY -= 14;
+    });
+    
+    const remarkValue = formData.sectionCTasks?.[task.key] || '';
+    const remarkLines = wrapTextToFitLine(remarkValue, helveticaBold, 12, remarkWidth);
+    currentY = y;
+    remarkLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: width - 150, y: currentY, size: 12, font: helveticaBold, color: primaryBlue });
+      currentY -= 14;
+    });
+    
+    y -= Math.max(descLines.count, remarkLines.count) * 14 + 2;
   });
 
-  y -= 20;
+  y -= 22;
 
   // Decoder subsection
   addNewPageIfNeeded(20);
   page.drawText('Decoder', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
   y -= 15;
 
-  // Table header for Decoder
-  page.drawText('MAINTENANCE TASK DESCRIPTION', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-  page.drawText('STATUS / REMARKS', { x: width - 150, y, size: 12, font: helveticaBold, color: blackColor });
-  y -= 15;
   page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: borderColor });
   y -= 15;
 
   const decoderTasks = [
-    { desc: 'Confirm decoder is booting and operating correctly', remark: formData.sectionCTasks?.decoderBooting || '' },
-    { desc: 'Confirm all channels are accessible and decoder responsive', remark: formData.sectionCTasks?.decoderChannels || '' },
-    { desc: 'Check for firmware updates and signal quality', remark: formData.sectionCTasks?.decoderFirmware || '' },
-    { desc: 'Inspect HDMI/AV output and remote-control functionality', remark: formData.sectionCTasks?.decoderHdmi || '' },
+    { desc: 'Confirm decoder is booting and operating correctly', key: 'decoderBooting' },
+    { desc: 'Confirm all channels are accessible and decoder responsive', key: 'decoderChannels' },
+    { desc: 'Check for firmware updates and signal quality', key: 'decoderFirmware' },
+    { desc: 'Inspect HDMI/AV output and remote-control functionality', key: 'decoderHdmi' },
   ];
 
   decoderTasks.forEach((task, index) => {
-    addNewPageIfNeeded(15);
-    page.drawText(task.desc, { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-    drawDottedLine(page, width - 150, width - 50, y);
-    const remarkText = task.remark || '';
-    page.drawText(remarkText, { x: width - 150, y, size: 12, font: helveticaBold, color: primaryBlue });
-    y -= 12;
+    addNewPageIfNeeded(40);
+    const descWidth = 350;
+    const remarkWidth = 100;
+    
+    const descLines = wrapTextToFitLine(task.desc, helvetica, 12, descWidth);
+    let currentY = y;
+    descLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: 50, y: currentY, size: 12, font: helvetica, color: blackColor });
+      currentY -= 14;
+    });
+    
+    const remarkValue = formData.sectionCTasks?.[task.key] || '';
+    const remarkLines = wrapTextToFitLine(remarkValue, helveticaBold, 12, remarkWidth);
+    currentY = y;
+    remarkLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: width - 150, y: currentY, size: 12, font: helveticaBold, color: primaryBlue });
+      currentY -= 14;
+    });
+    
+    y -= Math.max(descLines.count, remarkLines.count) * 14 + 2;
   });
 
-  y -= 20;
+  y -= 22;
 
   // Cabling subsection
   addNewPageIfNeeded(20);
   page.drawText('Cabling', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
   y -= 15;
 
-  // Table header for Cabling
-  page.drawText('MAINTENANCE TASK DESCRIPTION', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-  page.drawText('STATUS / REMARKS', { x: width - 150, y, size: 12, font: helveticaBold, color: blackColor });
-  y -= 15;
   page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: borderColor });
   y -= 15;
 
   const cablingTasks = [
-    { desc: 'Inspect coaxial connections and F-connectors', remark: formData.sectionCTasks?.cablingCoaxial || '' },
-    { desc: 'Check for water ingress or wear on exposed cabling', remark: formData.sectionCTasks?.cablingWaterIngress || '' },
+    { desc: 'Inspect coaxial connections and F-connectors', key: 'cablingCoaxial' },
+    { desc: 'Check for water ingress or wear on exposed cabling', key: 'cablingWaterIngress' },
   ];
 
   cablingTasks.forEach((task, index) => {
-    addNewPageIfNeeded(15);
-    page.drawText(task.desc, { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-    drawDottedLine(page, width - 150, width - 50, y);
-    const remarkText = task.remark || '';
-    page.drawText(remarkText, { x: width - 150, y, size: 12, font: helveticaBold, color: primaryBlue });
-    y -= 12;
+    addNewPageIfNeeded(40);
+    const descWidth = 350;
+    const remarkWidth = 100;
+    
+    const descLines = wrapTextToFitLine(task.desc, helvetica, 12, descWidth);
+    let currentY = y;
+    descLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: 50, y: currentY, size: 12, font: helvetica, color: blackColor });
+      currentY -= 14;
+    });
+    
+    const remarkValue = formData.sectionCTasks?.[task.key] || '';
+    const remarkLines = wrapTextToFitLine(remarkValue, helveticaBold, 12, remarkWidth);
+    currentY = y;
+    remarkLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: width - 150, y: currentY, size: 12, font: helveticaBold, color: primaryBlue });
+      currentY -= 14;
+    });
+    
+    y -= Math.max(descLines.count, remarkLines.count) * 14 + 2;
   });
 
-  y -= 20;
+  y -= 22;
 
   // Decoder totals
   addNewPageIfNeeded(20);
@@ -508,171 +571,210 @@ export async function generateUCCMaintenancePDF(
   page.drawText('Faulty:', { x: 380, y, size: 12, font: helveticaBold, color: blackColor });
   drawDottedLine(page, 440, width - 50, y);
   page.drawText(formData.decoderStatus?.faulty || '', { x: 440, y, size: 12, font: helveticaBold, color: primaryBlue });
-  y -= 25;
+  y -= 27;
 
   // Section D: Conference Room AV System
   addNewPageIfNeeded(20);
   page.drawText('SECTION D: CONFERENCE ROOM AV SYSTEM (Audio, Display, Control System – for 3 Rooms)', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-  y -= 20;
+  y -= 22;
 
   // Display System subsection
   addNewPageIfNeeded(20);
   page.drawText('Display System', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
   y -= 15;
 
-  // Table header for Display System
-  page.drawText('MAINTENANCE TASK DESCRIPTION', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-  page.drawText('STATUS / REMARKS', { x: width - 150, y, size: 12, font: helveticaBold, color: blackColor });
-  y -= 15;
   page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: borderColor });
   y -= 15;
 
   const displayTasks = [
-    { desc: 'Test screen/projector Image clarity and brightness', remark: formData.sectionDTasks?.displayClarity || '' },
-    { desc: 'Test display projection/TV functionality', remark: formData.sectionDTasks?.displayFunctionality || '' },
-    { desc: 'Check input sources (HDMI, VGA, Wireless Casting)', remark: formData.sectionDTasks?.displayInputs || '' },
-    { desc: 'Test video conferencing platform (Zoom, Teams, etc.)', remark: formData.sectionDTasks?.displayVC || '' },
-    { desc: 'Clean display surface and filters', remark: formData.sectionDTasks?.displayClean || '' },
+    { desc: 'Test screen/projector Image clarity and brightness', key: 'displayClarity' },
+    { desc: 'Test display projection/TV functionality', key: 'displayFunctionality' },
+    { desc: 'Check input sources (HDMI, VGA, Wireless Casting)', key: 'displayInputs' },
+    { desc: 'Test video conferencing platform (Zoom, Teams, etc.)', key: 'displayVC' },
+    { desc: 'Clean display surface and filters', key: 'displayClean' },
   ];
 
   displayTasks.forEach((task, index) => {
-    addNewPageIfNeeded(15);
-    page.drawText(task.desc, { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-    drawDottedLine(page, width - 150, width - 50, y);
-    const remarkText = task.remark || '';
-    page.drawText(remarkText, { x: width - 150, y, size: 12, font: helveticaBold, color: primaryBlue });
-    y -= 12;
+    addNewPageIfNeeded(40);
+    const descWidth = 350;
+    const remarkWidth = 100;
+    
+    const descLines = wrapTextToFitLine(task.desc, helvetica, 12, descWidth);
+    let currentY = y;
+    descLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: 50, y: currentY, size: 12, font: helvetica, color: blackColor });
+      currentY -= 14;
+    });
+    
+    const remarkValue = formData.sectionDTasks?.[task.key] || '';
+    const remarkLines = wrapTextToFitLine(remarkValue, helveticaBold, 12, remarkWidth);
+    currentY = y;
+    remarkLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: width - 150, y: currentY, size: 12, font: helveticaBold, color: primaryBlue });
+      currentY -= 14;
+    });
+    
+    y -= Math.max(descLines.count, remarkLines.count) * 14 + 2;
   });
 
-  y -= 20;
+  y -= 22;
 
   // Audio System subsection
   addNewPageIfNeeded(20);
   page.drawText('Audio System', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
   y -= 15;
 
-  // Table header for Audio System
-  page.drawText('MAINTENANCE TASK DESCRIPTION', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-  page.drawText('STATUS / REMARKS', { x: width - 150, y, size: 12, font: helveticaBold, color: blackColor });
-  y -= 15;
   page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: borderColor });
   y -= 15;
 
   const audioTasks = [
-    { desc: 'Check microphones (wired/wireless)', remark: formData.sectionDTasks?.audioMics || '' },
-    { desc: 'Inspect microphone and speaker performance', remark: formData.sectionDTasks?.audioPerformance || '' },
-    { desc: 'Test ceiling/panel speakers and mixer levels', remark: formData.sectionDTasks?.audioSpeakers || '' },
-    { desc: 'Verify DSP processing and mute controls', remark: formData.sectionDTasks?.audioDsp || '' },
+    { desc: 'Check microphones (wired/wireless)', key: 'audioMics' },
+    { desc: 'Inspect microphone and speaker performance', key: 'audioPerformance' },
+    { desc: 'Test ceiling/panel speakers and mixer levels', key: 'audioSpeakers' },
+    { desc: 'Verify DSP processing and mute controls', key: 'audioDsp' },
   ];
 
   audioTasks.forEach((task, index) => {
-    addNewPageIfNeeded(15);
-    page.drawText(task.desc, { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-    drawDottedLine(page, width - 150, width - 50, y);
-    const remarkText = task.remark || '';
-    page.drawText(remarkText, { x: width - 150, y, size: 12, font: helveticaBold, color: primaryBlue });
-    y -= 12;
+    addNewPageIfNeeded(40);
+    const descWidth = 350;
+    const remarkWidth = 100;
+    
+    const descLines = wrapTextToFitLine(task.desc, helvetica, 12, descWidth);
+    let currentY = y;
+    descLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: 50, y: currentY, size: 12, font: helvetica, color: blackColor });
+      currentY -= 14;
+    });
+    
+    const remarkValue = formData.sectionDTasks?.[task.key] || '';
+    const remarkLines = wrapTextToFitLine(remarkValue, helveticaBold, 12, remarkWidth);
+    currentY = y;
+    remarkLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: width - 150, y: currentY, size: 12, font: helveticaBold, color: primaryBlue });
+      currentY -= 14;
+    });
+    
+    y -= Math.max(descLines.count, remarkLines.count) * 14 + 2;
   });
 
-  y -= 20;
+  y -= 22;
 
   // Control System subsection
   addNewPageIfNeeded(20);
   page.drawText('Control System', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
   y -= 15;
 
-  // Table header for Control System
-  page.drawText('MAINTENANCE TASK DESCRIPTION', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-  page.drawText('STATUS / REMARKS', { x: width - 150, y, size: 12, font: helveticaBold, color: blackColor });
-  y -= 15;
   page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: borderColor });
   y -= 15;
 
   const controlTasks = [
-    { desc: 'Verify control panel or touchpad functions properly', remark: formData.sectionDTasks?.controlPanel || '' },
-    { desc: 'Test touch panel or remote-control interface', remark: formData.sectionDTasks?.controlTouch || '' },
-    { desc: 'Confirm programmed presets and switching automation', remark: formData.sectionDTasks?.controlPresets || '' },
-    { desc: 'Validate network connectivity (IP-based Control)', remark: formData.sectionDTasks?.controlNetwork || '' },
+    { desc: 'Verify control panel or touchpad functions properly', key: 'controlPanel' },
+    { desc: 'Test touch panel or remote-control interface', key: 'controlTouch' },
+    { desc: 'Confirm programmed presets and switching automation', key: 'controlPresets' },
+    { desc: 'Validate network connectivity (IP-based Control)', key: 'controlNetwork' },
   ];
 
   controlTasks.forEach((task, index) => {
-    addNewPageIfNeeded(15);
-    page.drawText(task.desc, { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-    drawDottedLine(page, width - 150, width - 50, y);
-    const remarkText = task.remark || '';
-    page.drawText(remarkText, { x: width - 150, y, size: 12, font: helveticaBold, color: primaryBlue });
-    y -= 12;
+    addNewPageIfNeeded(40);
+    const descWidth = 350;
+    const remarkWidth = 100;
+    
+    const descLines = wrapTextToFitLine(task.desc, helvetica, 12, descWidth);
+    let currentY = y;
+    descLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: 50, y: currentY, size: 12, font: helvetica, color: blackColor });
+      currentY -= 14;
+    });
+    
+    const remarkValue = formData.sectionDTasks?.[task.key] || '';
+    const remarkLines = wrapTextToFitLine(remarkValue, helveticaBold, 12, remarkWidth);
+    currentY = y;
+    remarkLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: width - 150, y: currentY, size: 12, font: helveticaBold, color: primaryBlue });
+      currentY -= 14;
+    });
+    
+    y -= Math.max(descLines.count, remarkLines.count) * 14 + 2;
   });
 
-  y -= 20;
+  y -= 22;
 
   // Connectivity subsection
   addNewPageIfNeeded(20);
   page.drawText('Connectivity', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
   y -= 15;
 
-  // Table header for Connectivity
-  page.drawText('MAINTENANCE TASK DESCRIPTION', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-  page.drawText('STATUS / REMARKS', { x: width - 150, y, size: 12, font: helveticaBold, color: blackColor });
-  y -= 15;
   page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: borderColor });
   y -= 15;
 
   const connectivityTasks = [
-    { desc: 'Check all input ports and connectivity with laptops', remark: formData.sectionDTasks?.connectPorts || '' },
-    { desc: 'Test conference call systems (VC platforms, USB integration)', remark: formData.sectionDTasks?.connectCallSystems || '' },
-    { desc: 'Inspect cabling and patch points (HD-BaseT, Audio links)', remark: formData.sectionDTasks?.connectCabling || '' },
-    { desc: 'Confirm firmware is up to date on all equipment', remark: formData.sectionDTasks?.connectFirmware || '' },
+    { desc: 'Check all input ports and connectivity with laptops', key: 'connectPorts' },
+    { desc: 'Test conference call systems (VC platforms, USB integration)', key: 'connectCallSystems' },
+    { desc: 'Inspect cabling and patch points (HD-BaseT, Audio links)', key: 'connectCabling' },
+    { desc: 'Confirm firmware is up to date on all equipment', key: 'connectFirmware' },
   ];
 
   connectivityTasks.forEach((task, index) => {
-    addNewPageIfNeeded(15);
-    page.drawText(task.desc, { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-    drawDottedLine(page, width - 150, width - 50, y);
-    const remarkText = task.remark || '';
-    page.drawText(remarkText, { x: width - 150, y, size: 12, font: helveticaBold, color: primaryBlue });
-    y -= 12;
+    addNewPageIfNeeded(40);
+    const descWidth = 350;
+    const remarkWidth = 100;
+    
+    const descLines = wrapTextToFitLine(task.desc, helvetica, 12, descWidth);
+    let currentY = y;
+    descLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: 50, y: currentY, size: 12, font: helvetica, color: blackColor });
+      currentY -= 14;
+    });
+    
+    const remarkValue = formData.sectionDTasks?.[task.key] || '';
+    const remarkLines = wrapTextToFitLine(remarkValue, helveticaBold, 12, remarkWidth);
+    currentY = y;
+    remarkLines.lines.forEach((line, i) => {
+      page.drawText(line, { x: width - 150, y: currentY, size: 12, font: helveticaBold, color: primaryBlue });
+      currentY -= 14;
+    });
+    
+    y -= Math.max(descLines.count, remarkLines.count) * 14 + 2;
   });
 
-  y -= 25;
+  y -= 27;
 
-  // Pre-calculate wrapping for diagnosis report like in Alcatel template
-  const diagnosisText = `Diagnosis Report (Faulty Cabling / Faulty Device): `;
-  const diagnosisLabelWidth = helvetica.widthOfTextAtSize(diagnosisText, 12);
-  const diagnosisFirstLineWidth = width - 50 - (50 + diagnosisLabelWidth + 5);
-  const diagnosisSubsequentLineWidth = width - 50 - 50;
-  const { lines: diagnosisLinesList } = wrapTextToFitLine(
-    formData.diagnosisReport || '',
-    helveticaBold,
-    12,
-    diagnosisFirstLineWidth,
-    diagnosisSubsequentLineWidth
-  );
+  // Diagnosis Report - Bold label and full-width content
+  addNewPageIfNeeded(60);
+  page.drawText('Diagnosis Report (Faulty Cabling / Faulty Device):', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
+  y -= 18;
 
-  // Diagnosis Report with proper wrapping
-  addNewPageIfNeeded(40);
-  page.drawText(diagnosisText, { x: 50, y, size: 12, font: helvetica, color: blackColor });
-  drawDottedLine(page, 50 + diagnosisLabelWidth + 5, width - 50, y);
-  let diagnosisY = y;
+  const diagnosisContent = formData.diagnosisReport || '';
+  const diagnosisWidth = width - 100; // Full width minus margins
+  const diagnosisLines = wrapTextToFitLine(diagnosisContent, helveticaBold, 12, diagnosisWidth);
+  
+  diagnosisLines.lines.forEach((line, index) => {
+    addNewPageIfNeeded(20);
+    drawDottedLine(page, 50, width - 50, y);
+    page.drawText(line, { x: 50, y, size: 12, font: helveticaBold, color: primaryBlue });
+    y -= 18;
+  });
 
-  diagnosisLinesList.forEach((line, index) => {
-    if (index > 0) {
-      diagnosisY -= 18;
-      drawDottedLine(page, 50, width - 50, diagnosisY);
+  // Add extra dotted lines if content is short
+  if (diagnosisLines.lines.length < 3) {
+    for (let i = diagnosisLines.lines.length; i < 3; i++) {
+      addNewPageIfNeeded(20);
+      drawDottedLine(page, 50, width - 50, y);
+      y -= 18;
     }
-    page.drawText(line, { x: (index === 0 ? 50 + diagnosisLabelWidth + 5 : 50), y: diagnosisY, size: 12, font: helveticaBold, color: primaryBlue });
-  });
-  y = diagnosisY - 25;
+  }
 
-  // Hours spent
+  y -= 10;
+
+  // Hours spent - Bold label
   addNewPageIfNeeded(20);
-  page.drawText('Hours spent on the Job:', { x: 50, y, size: 12, font: helvetica, color: blackColor });
-  const hoursX = 50 + helvetica.widthOfTextAtSize('Hours spent on the Job:', 12) + 5;
+  page.drawText('Hours Spent on the Job:', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
+  const hoursX = 50 + helveticaBold.widthOfTextAtSize('Hours Spent on the Job:', 12) + 5;
   drawDottedLine(page, hoursX, width - 50, y);
   page.drawText(formData.hoursSpent || '', { x: hoursX, y, size: 12, font: helveticaBold, color: primaryBlue });
   y -= 40;
 
-  // Signatures section - following Alcatel template pattern
+  // Signatures section
   addNewPageIfNeeded(150);
   page.drawText('E.', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
   page.drawText('CUSTOMER REPRESENTATIVE', { x: 70, y, size: 12, font: helveticaBold, color: blackColor });
@@ -797,21 +899,5 @@ async function drawSignatureInContainer(pdfDoc: PDFDocument, page: any, signatur
     });
   } catch (error) {
     console.error('Error embedding signature:', error);
-  }
-}
-
-function mapRemark(value: string): string {
-  switch (value) {
-    case 'done':
-    case 'checked':
-    case 'Checked':
-      return 'Checked';
-    case 'not_done':
-    case 'not_checked':
-      return 'Not Checked';
-    case 'na':
-      return 'N/A';
-    default:
-      return '';
   }
 }
