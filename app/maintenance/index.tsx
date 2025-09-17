@@ -432,15 +432,15 @@ const MaintenanceFormSystem = () => {
         if (!data.customerName.trim()) return 'Customer name is required';
         if (!data.officeLocation.trim()) return 'Office location is required';
 
-        // Period validation for forms with periodType (CCTV and UCC)
-        if ('periodType' in data) {
-            if (!data.periodType.trim()) return 'Period type is required';
-            if (!data.subPeriod.trim()) return 'Sub period is required';
-            if (!data.year.trim()) return 'Year is required';
-        } else {
-            // Quarter/Year for Alcatel and Grandstream
-            if (!data.quarterYear?.trim()) return 'Quarter/Year is required';
-        }
+        // // Period validation for forms with periodType (CCTV and UCC)
+        // if ('periodType' in data) {
+        //     if (!data.periodType.trim()) return 'Period type is required';
+        //     if (!data.subPeriod.trim()) return 'Sub period is required';
+        //     if (!data.year.trim()) return 'Year is required';
+        // } else {
+        //     // Quarter/Year for Alcatel and Grandstream
+        //     if (!data.quarterYear?.trim()) return 'Quarter/Year is required';
+        // }
 
         if (!data.customerRepName.trim()) return 'Customer representative name is required';
         if (!data.customerDate.trim()) return 'Customer date is required';
@@ -653,11 +653,11 @@ const MaintenanceFormSystem = () => {
                         onValueChange={(itemValue: string) => setSelectedForm(itemValue)}
                         dropdownIconColor="#2563eb"
                     >
-                        <Picker.Item label="Select Equipment Type" value="" />
+                        <Picker.Item label="Select Your Routine Form" value="" />
                         <Picker.Item label="Alcatel Lucent Telephone System" value="alcatel" />
                         <Picker.Item label="Grandstream Telephone System" value="grandstream" />
                         <Picker.Item label="CCTV System" value="cctv" />
-                        <Picker.Item label="UCC Service and Routine Maintenance" value="ucc" /> {/* Added */}
+                        <Picker.Item label="UCC Service and Routine Maintenance" value="ucc" />
                     </Picker>
                 </View>
             </View>

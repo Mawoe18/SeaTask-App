@@ -185,7 +185,7 @@ export async function generateUCCMaintenancePDF(
   // Customer info - no overlaps, proper spacing
   addNewPageIfNeeded(20);
   page.drawText('CUSTOMER:', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
-  page.drawText(formData.customerName || '', { x: 135, y, size: 12, font: helveticaBold, color: primaryBlue });
+  page.drawText(formData.customerName || '', { x: 125, y, size: 12, font: helveticaBold, color: primaryBlue });
   
   page.drawText('OFFICE LOC.:', { x: width / 2 - 50, y, size: 12, font: helveticaBold, color: blackColor });
   page.drawText(formData.officeLocation || '', { x: width / 2 + 30, y, size: 12, font: helveticaBold, color: primaryBlue });
@@ -246,12 +246,12 @@ export async function generateUCCMaintenancePDF(
     const descWidth = 250;
     const remarkWidth = 100;
     
-    // Component column
-    const componentLines = wrapTextToFitLine(task.component, helvetica, 12, componentWidth);
+    // Component column with bold font
+    const componentLines = wrapTextToFitLine(task.component, helveticaBold, 12, componentWidth);
     let currentY = y;
     componentLines.lines.forEach((line, i) => {
-      page.drawText(line, { x: 50, y: currentY, size: 12, font: helvetica, color: blackColor });
-      currentY -= 14;
+      page.drawText(line, { x: 50, y: currentY, size: 12, font: helveticaBold, color: blackColor });
+      currentY -= 16;
     });
     
     // Description column
@@ -259,22 +259,22 @@ export async function generateUCCMaintenancePDF(
     currentY = y;
     descLines.lines.forEach((line, i) => {
       page.drawText(line, { x: 150, y: currentY, size: 12, font: helvetica, color: blackColor });
-      currentY -= 14;
+      currentY -= 16;
     });
     
-    // Status/Remarks column - Use raw formData value
+    // Status/Remarks column
     const remarkValue = formData.sectionATasks?.[task.key] || '';
     const remarkLines = wrapTextToFitLine(remarkValue, helveticaBold, 12, remarkWidth);
     currentY = y;
     remarkLines.lines.forEach((line, i) => {
       page.drawText(line, { x: width - 150, y: currentY, size: 12, font: helveticaBold, color: primaryBlue });
-      currentY -= 14;
+      currentY -= 16;
     });
     
-    y -= Math.max(componentLines.count, descLines.count, remarkLines.count) * 14 + 2;
+    y -= Math.max(componentLines.count, descLines.count, remarkLines.count) * 16;
   });
 
-  y -= 22;
+  y -= 18;
 
   // Network totals
   addNewPageIfNeeded(40);
@@ -352,7 +352,7 @@ export async function generateUCCMaintenancePDF(
   y -= 22;
 
   // IP Cameras subsection
-  addNewPageIfNeeded(20);
+  addNewPageIfNeeded(235);
   page.drawText('IP Cameras', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
   y -= 15;
 
@@ -396,7 +396,7 @@ export async function generateUCCMaintenancePDF(
   addNewPageIfNeeded(20);
   page.drawText('Total No. of IP Camera: Dome:', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
   drawDottedLine(page, 220, 270, y);
-  page.drawText(formData.cameraStatus?.dome || '', { x: 220, y, size: 12, font: helveticaBold, color: primaryBlue });
+  page.drawText(formData.cameraStatus?.dome || '', { x: 225, y, size: 12, font: helveticaBold, color: primaryBlue });
   
   page.drawText('Bullet:', { x: 280, y, size: 12, font: helveticaBold, color: blackColor });
   drawDottedLine(page, 340, 390, y);
@@ -410,7 +410,7 @@ export async function generateUCCMaintenancePDF(
   addNewPageIfNeeded(20);
   page.drawText('Working:', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
   drawDottedLine(page, 100, 150, y);
-  page.drawText(formData.cameraStatus?.working || '', { x: 100, y, size: 12, font: helveticaBold, color: primaryBlue });
+  page.drawText(formData.cameraStatus?.working || '', { x: 110, y, size: 12, font: helveticaBold, color: primaryBlue });
   
   page.drawText('Faulty:', { x: 160, y, size: 12, font: helveticaBold, color: blackColor });
   drawDottedLine(page, 210, 260, y);
@@ -421,7 +421,7 @@ export async function generateUCCMaintenancePDF(
   addNewPageIfNeeded(20);
   page.drawText('Total No. of Disk Storage: HDD:', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
   drawDottedLine(page, 220, 270, y);
-  page.drawText(formData.diskStatus?.hdd || '', { x: 220, y, size: 12, font: helveticaBold, color: primaryBlue });
+  page.drawText(formData.diskStatus?.hdd || '', { x: 230, y, size: 12, font: helveticaBold, color: primaryBlue });
   
   page.drawText('SSD:', { x: 280, y, size: 12, font: helveticaBold, color: blackColor });
   drawDottedLine(page, 320, 370, y);
@@ -433,7 +433,7 @@ export async function generateUCCMaintenancePDF(
   
   page.drawText('Faulty:', { x: 500, y, size: 12, font: helveticaBold, color: blackColor });
   drawDottedLine(page, 560, width - 50, y);
-  page.drawText(formData.diskStatus?.faulty || '', { x: 560, y, size: 12, font: helveticaBold, color: primaryBlue });
+  page.drawText(formData.diskStatus?.faulty || '', { x: 550, y, size: 12, font: helveticaBold, color: primaryBlue });
   y -= 27;
 
   // Section C: DSTV System
@@ -620,7 +620,7 @@ export async function generateUCCMaintenancePDF(
   y -= 22;
 
   // Audio System subsection
-  addNewPageIfNeeded(20);
+  addNewPageIfNeeded(195);
   page.drawText('Audio System', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
   y -= 15;
 
@@ -739,13 +739,13 @@ export async function generateUCCMaintenancePDF(
 
   y -= 27;
 
-  // Diagnosis Report - Bold label and full-width content
+  // Diagnosis Report
   addNewPageIfNeeded(60);
   page.drawText('Diagnosis Report (Faulty Cabling / Faulty Device):', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
   y -= 18;
 
   const diagnosisContent = formData.diagnosisReport || '';
-  const diagnosisWidth = width - 100; // Full width minus margins
+  const diagnosisWidth = width - 100;
   const diagnosisLines = wrapTextToFitLine(diagnosisContent, helveticaBold, 12, diagnosisWidth);
   
   diagnosisLines.lines.forEach((line, index) => {
@@ -755,7 +755,6 @@ export async function generateUCCMaintenancePDF(
     y -= 18;
   });
 
-  // Add extra dotted lines if content is short
   if (diagnosisLines.lines.length < 3) {
     for (let i = diagnosisLines.lines.length; i < 3; i++) {
       addNewPageIfNeeded(20);
@@ -766,7 +765,7 @@ export async function generateUCCMaintenancePDF(
 
   y -= 10;
 
-  // Hours spent - Bold label
+  // Hours spent
   addNewPageIfNeeded(20);
   page.drawText('Hours Spent on the Job:', { x: 50, y, size: 12, font: helveticaBold, color: blackColor });
   const hoursX = 50 + helveticaBold.widthOfTextAtSize('Hours Spent on the Job:', 12) + 5;

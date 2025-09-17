@@ -49,7 +49,7 @@ export async function generateWorkOrderPDF(
     const calibriFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const calibriBoldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     
-    // Load custom font for logo
+    // Load custom font for logo - using same approach as Alcatel template
     let logoFont;
     try {
       const fontAsset = Asset.fromModule(require('../../assets/fonts/gill-sans-nova-heavy.ttf'));
@@ -74,7 +74,7 @@ export async function generateWorkOrderPDF(
     const primaryBlue = rgb(36 / 255, 131 / 255, 197 / 255);
     const blackColor = rgb(0, 0, 0);
 
-    // Add company logo
+    // Add company logo - without "SINCE 1980" like in Alcatel template
     const logoText = "seatec";
     const logoSize = 36;
     const logoWidth = logoFont.widthOfTextAtSize(logoText, logoSize);
@@ -522,7 +522,8 @@ export async function generateWorkOrderPDF(
     totalLinesUsed += 1;
 
     // Dynamic Space Adjustment
-    const signatureY = 90; // Fixed signature position
+    const SIGNATURE_Y_OFFSET = 120; // Adjustable signature position - increase to move signature up
+    const signatureY = SIGNATURE_Y_OFFSET; // Fixed signature position
     const minYBeforeSignature = signatureY + 50; // Ensure space for signature container
     const availableLines = Math.floor((y - minYBeforeSignature) / 20);
     const extraLines = totalLinesUsed - (Math.floor((height - 70 - minYBeforeSignature) / 20));
@@ -570,7 +571,7 @@ export async function generateWorkOrderPDF(
       y = minYBeforeSignature;
     }
 
-    // Signature Section
+    // Signature Section - Updated to match Alcatel template style
     const signatureContainerWidth = 200;
     const signatureContainerHeight = 50;
     const signatureContainerX = 150;
@@ -607,13 +608,18 @@ export async function generateWorkOrderPDF(
       });
     }
 
-    if (formData.signature) {
+    // Helper function to draw signature in container - matching Alcatel template approach
+    const drawSignatureInContainer = async (
+      signatureData: string,
+      containerX: number,
+      containerY: number,
+      containerWidth: number,
+      containerHeight: number
+    ) => {
       try {
-        console.log('[PDF] Processing signature image');
-        
-        const base64Data = formData.signature.replace(/^data:image\/[^;]+;base64,/, '');
+        const base64Data = signatureData.replace(/^data:image\/[^;]+;base64,/, '');
         const signatureBytes = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-        
+
         let signatureImage;
         try {
           signatureImage = await pdfDoc.embedPng(signatureBytes);
@@ -625,11 +631,11 @@ export async function generateWorkOrderPDF(
             return;
           }
         }
-        
-        const availableWidth = signatureContainerWidth - 2;
-        const availableHeight = signatureContainerHeight - 6;
+
+        const availableWidth = containerWidth - 2;
+        const availableHeight = containerHeight - 6;
         const aspectRatio = signatureImage.width / signatureImage.height;
-        
+
         let sigWidth = availableWidth;
         let sigHeight = sigWidth / aspectRatio;
 
@@ -641,20 +647,33 @@ export async function generateWorkOrderPDF(
           }
         }
 
-        const signatureCenterX = signatureContainerX + (signatureContainerWidth / 2);
+        const signatureCenterX = containerX + (containerWidth / 2);
         const signatureX = signatureCenterX - (sigWidth / 2);
-        const signatureYPos = signatureContainerY + 10;
-        
+        const signatureYPos = containerY + (availableHeight / 2) + (sigHeight / 2) - 5;
+
         page.drawImage(signatureImage, {
           x: signatureX,
-          y: signatureYPos,
+          y: signatureYPos - sigHeight,
           width: sigWidth,
           height: sigHeight,
           opacity: 1.0,
         });
-        
+      } catch (error) {
+        console.error('Error embedding signature:', error);
+      }
+    };
+
+    if (formData.signature) {
+      try {
+        console.log('[PDF] Processing signature image');
+        await drawSignatureInContainer(
+          formData.signature,
+          signatureContainerX,
+          signatureContainerY,
+          signatureContainerWidth,
+          signatureContainerHeight
+        );
         console.log('[PDF] Signature added successfully');
-        
       } catch (error) {
         console.error('[PDF] Error embedding signature:', error);
       }

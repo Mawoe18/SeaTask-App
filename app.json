@@ -4,7 +4,7 @@
     "slug": "seatec_app",
     "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/images/Square_Logo-1.png",
+    "icon": "./assets/images/New-Logo-2.png",
     "scheme": "seataskproject",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -25,7 +25,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/Logo-Gif-1.gif",
+          "image": "./assets/images/New-Logo-2.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"

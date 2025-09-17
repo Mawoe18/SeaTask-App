@@ -48,7 +48,8 @@ const UCCForm = ({
     onClearCustomerSignature,
     onClearSeatecSignature
 }: FormComponentProps) => {
-    const uccData = formData as UCCFormData;
+    const uccData = (formData || {}) as UCCFormData; // Fallback to empty object
+    const safeOnFieldChange = onFieldChange || (() => { }); // Fallback to no-op function
 
     const sectionATasks = [
         { id: 'coreSwitch', description: 'Check LED indicators for port/link/activity status' },
@@ -127,7 +128,7 @@ const UCCForm = ({
 
     let subOptions: string[] = [];
     if (uccData.periodType === 'Month') {
-        subOptions = ['1st', '2nd', '3rd', '4th', '5th', '6th','7th', '8th', '9th', '10th', '11th', '12th'];
+        subOptions = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th', '11th', '12th'];
     } else if (uccData.periodType === 'Quarter') {
         subOptions = ['1st', '2nd', '3rd', '4th'];
     } else if (uccData.periodType === 'Bi-annual') {
