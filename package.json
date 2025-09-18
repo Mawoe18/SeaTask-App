@@ -8,7 +8,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -43,9 +44,9 @@
     "expo-symbols": "~0.4.5",
     "expo-system-ui": "~5.0.11",
     "expo-web-browser": "~14.2.0",
-    "firebase": "^12.0.0",
     "git": "^0.1.5",
     "ical-generator": "^9.0.0",
+    "lightningcss": "^1.22.0",
     "lucide-react-native": "^0.525.0",
     "moment": "^2.30.1",
     "nativewind": "^4.1.23",
@@ -59,7 +60,7 @@
     "react-native-gesture-handler": "~2.24.0",
     "react-native-pdf": "^6.7.7",
     "react-native-picker-select": "^9.3.1",
-    "react-native-reanimated": "~3.17.4",
+    "react-native-reanimated": "^3.16.0",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
     "react-native-share": "^12.1.1",
@@ -67,8 +68,10 @@
     "react-native-svg": "15.11.2",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
-    "react-native-worklets": "^0.5.1",
     "tailwindcss": "^3.4.17"
+  },
+  "resolutions": {
+    "react-native-worklets": "react-native-reanimated"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -77,7 +80,11 @@
     "eslint": "^9.25.0",
     "eslint-config-expo": "~9.2.0",
     "metro-react-native-babel-preset": "^0.77.0",
+    "patch-package": "^8.0.0",
     "typescript": "~5.8.3"
+  },
+  "overrides": {
+    "@react-native-async-storage/async-storage": "2.1.2"
   },
   "private": true,
   "expo": {
