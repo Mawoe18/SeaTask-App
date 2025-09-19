@@ -11,8 +11,6 @@
     "preview": {
       "android": {
         "buildType": "apk"
-      },"hooks": {
-        "postInstall": "npm run fix-lightningcss"
       }
     },
     "production": {
