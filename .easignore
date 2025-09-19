@@ -13,6 +13,7 @@ node_modules/
 android/app/build/
 ios/build/
 dist/
+android
 
 # Assets (exclude raw/large files; keep optimized ones)
 **/*.psd
