@@ -5,7 +5,7 @@ node_modules/
 
 # Logs and caches
 *.log
-.expo/
+# .expo/
 .gradle/
 .DS_Store
 
@@ -19,14 +19,14 @@ android
 **/*.psd
 **/*.sketch
 **/*.ai
-assets/raw/
-images/original/
+
+
 
 # Tests and docs
 __tests__/
 *.test.*
 docs/
-README.md
+
 CHANGELOG.md
 
 # IDE files
