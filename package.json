@@ -9,7 +9,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "fix-lightningcss": "cd node_modules/react-native-css-interop/node_modules/lightningcss && npm rebuild || (cd ../../../ && npm install lightningcss --force)"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",

@@ -10,10 +10,9 @@
     },
     "preview": {
       "android": {
-        "buildType": "apk",
-      "hooks": {
-        "postInstall": ".eas/build/post-install.sh"
-      }
+        "buildType": "apk"
+      },"hooks": {
+        "postInstall": "npm run fix-lightningcss"
       }
     },
     "production": {
