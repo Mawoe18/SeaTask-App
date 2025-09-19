@@ -8,16 +8,15 @@ LIGHTNINGCSS_PATH="node_modules/react-native-css-interop/node_modules/lightningc
 if [ -d "$LIGHTNINGCSS_PATH" ]; then
     echo "Found lightningcss at $LIGHTNINGCSS_PATH"
     cd "$LIGHTNINGCSS_PATH"
-
-    # Try to rebuild the native binaries
     npm rebuild lightningcss --verbose || {
-        echo "Rebuild failed, installing fallback..."
-        npm install lightningcss@1.25.1 --save-dev
+        echo "Rebuild failed, installing at root level..."
+        cd /home/expo/workingdir/build
+        npm install lightningcss --save-dev
     }
 else
-    echo "No nested lightningcss, installing at project root..."
+    echo "lightningcss not found, installing at root level..."
     cd /home/expo/workingdir/build
-    npm install lightningcss@1.25.1 --save-dev
+    npm install lightningcss --save-dev
 fi
 
 echo "lightningcss fix completed"

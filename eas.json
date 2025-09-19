@@ -3,26 +3,22 @@
     "version": ">= 16.19.3",
     "appVersionSource": "remote"
   },
+  
   "build": {
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
       },
-      "node": "22.19.0",
-      "hooks": {
-        "postInstall": ".eas/build/post-install.sh"
-      }
+      "node": "22.19.0"
     },
     "dev": {
       "developmentClient": true,
       "distribution": "internal",
-      "node": "22.19.0",
-      "hooks": {
-        "postInstall": ".eas/build/post-install.sh"
-      }
+      "node": "22.19.0"
     }
   },
+
   "submit": {
     "production": {}
   }
