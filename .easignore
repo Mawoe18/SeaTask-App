@@ -1,0 +1,11 @@
+node_modules
+.android 2
+.git
+android
+ios
+*.log
+.vscode
+.idea
+.expo
+.idea
+.vscode

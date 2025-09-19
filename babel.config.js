@@ -8,6 +8,7 @@ module.exports = function (api) {
      plugins: [
       // Expo Router must come AFTER NativeWind
       "expo-router/babel",
+      'react-native-worklets-core/plugin',
       
       // Add this if using animations (optional)
       "react-native-reanimated/plugin"
