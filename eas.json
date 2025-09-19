@@ -10,7 +10,10 @@
     },
     "preview": {
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+      "hooks": {
+        "postInstall": ".eas/build/post-install.sh"
+      }
       }
     },
     "production": {
