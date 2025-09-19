@@ -4,15 +4,23 @@
     "appVersionSource": "remote"
   },
   "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
-    },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "node": "22.19.0",
+      "hooks": {
+        "postInstall": ".eas/build/post-install.sh"
+      }
     },
-    "production": {
-      "autoIncrement": true
+    "dev": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "node": "22.19.0",
+      "hooks": {
+        "postInstall": ".eas/build/post-install.sh"
+      }
     }
   },
   "submit": {

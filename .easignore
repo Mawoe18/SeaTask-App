@@ -5,7 +5,7 @@ node_modules/
 
 # Logs and caches
 *.log
-# .expo/
+.expo/
 .gradle/
 .DS_Store
 
