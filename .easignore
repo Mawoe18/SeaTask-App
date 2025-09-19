@@ -1,11 +1,38 @@
-node_modules
-.android 2
-.git
-android
-ios
+# Dependencies
+node_modules/
+.pnp/
+.yarn/
+
+# Logs and caches
 *.log
-.vscode
-.idea
-.expo
-.idea
-.vscode
+.expo/
+.gradle/
+.DS_Store
+
+# Build outputs
+android/app/build/
+ios/build/
+dist/
+
+# Assets (exclude raw/large files; keep optimized ones)
+**/*.psd
+**/*.sketch
+**/*.ai
+assets/raw/
+images/original/
+
+# Tests and docs
+__tests__/
+*.test.*
+docs/
+README.md
+CHANGELOG.md
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+
+# Git
+.git/
+.gitignore
