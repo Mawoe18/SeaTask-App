@@ -1,22 +1,23 @@
 #!/bin/bash
 set -e
 
-echo "Fixing lightningcss native binaries for Linux..."
+echo "Starting lightningcss fix for EAS build..."
 
-LIGHTNINGCSS_PATH="node_modules/react-native-css-interop/node_modules/lightningcss"
+# Force clean install of lightningcss at root level
+echo "Installing lightningcss at root level..."
+npm install lightningcss --save-dev --force
 
-if [ -d "$LIGHTNINGCSS_PATH" ]; then
-    echo "Found lightningcss at $LIGHTNINGCSS_PATH"
-    cd "$LIGHTNINGCSS_PATH"
-    npm rebuild lightningcss --verbose || {
-        echo "Rebuild failed, installing at root level..."
-        cd /home/expo/workingdir/build
-        npm install lightningcss --save-dev
-    }
-else
-    echo "lightningcss not found, installing at root level..."
+# Also install it in the react-native-css-interop location
+REACT_CSS_PATH="node_modules/react-native-css-interop"
+if [ -d "$REACT_CSS_PATH" ]; then
+    echo "Installing lightningcss in react-native-css-interop..."
+    cd "$REACT_CSS_PATH"
+    npm install lightningcss --no-save --force
     cd /home/expo/workingdir/build
-    npm install lightningcss --save-dev
 fi
 
-echo "lightningcss fix completed"
+# Rebuild native modules
+echo "Rebuilding native modules..."
+npm rebuild
+
+echo "lightningcss fix completed successfully"

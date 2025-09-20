@@ -1,24 +1,42 @@
 {
   "cli": {
-    "version": ">= 16.19.3",
+    "version": ">= 13.2.1",
     "appVersionSource": "remote"
   },
-  
   "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "node": "20.18.0",
+      "android": {
+        "buildType": "apk"
+      }
+    },
     "preview": {
       "distribution": "internal",
+      "node": "20.18.0",
       "android": {
         "buildType": "apk"
       },
-      "node": "22.19.0"
+      "env": {
+        "LIGHTNINGCSS_PLATFORM": "linux-x64-gnu",
+        "npm_config_target_platform": "linux",
+        "npm_config_target_arch": "x64"
+      }
     },
-    "dev": {
-      "developmentClient": true,
-      "distribution": "internal",
-      "node": "22.19.0"
+    "production": {
+      "node": "20.18.0",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "NODE_ENV": "production",
+        "LIGHTNINGCSS_PLATFORM": "linux-x64-gnu",
+        "npm_config_target_platform": "linux",
+        "npm_config_target_arch": "x64"
+      }
     }
   },
-
   "submit": {
     "production": {}
   }
