@@ -1,19 +1,19 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
-import { Link } from 'expo-router';
-import { useState, useEffect, useCallback } from 'react';
-import { Alert, Image, ScrollView, Text, TextInput, TouchableOpacity, View, StyleSheet, ActivityIndicator, Modal } from 'react-native';
-import SignatureModal from '../components/SignatureModal';
-import { generateAlcatelMaintenancePDF } from '../../src/pdfTemplates/alcatelMaintenanceTemplate';
-import { generateGrandstreamMaintenancePDF } from '../../src/pdfTemplates/grandstreamMaintenanceTemplate';
-import { generateCCTVMaintenancePDF } from '../../src/pdfTemplates/cctvMaintenanceTemplate';
 import * as FileSystem from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
 import * as MailComposer from 'expo-mail-composer';
-import { PDF_DIRECTORY, createPdfDirectory } from '../index';
-import UCCForm from './UCCForm';
-import type { UCCFormData } from './UCCForm';
+import { Link } from 'expo-router';
+import * as Sharing from 'expo-sharing';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import SignatureModal from '../../components/SignatureModal';
+import { generateAlcatelMaintenancePDF } from '../../src/pdfTemplates/alcatelMaintenanceTemplate';
+import { generateCCTVMaintenancePDF } from '../../src/pdfTemplates/cctvMaintenanceTemplate';
+import { generateGrandstreamMaintenancePDF } from '../../src/pdfTemplates/grandstreamMaintenanceTemplate';
 import { generateUCCMaintenancePDF } from '../../src/pdfTemplates/uccMaintenanceTemplate'; // You will need to create this PDF template file
+import { PDF_DIRECTORY, createPdfDirectory } from '../index';
+import type { UCCFormData } from './UCCForm';
+import UCCForm from './UCCForm';
 
 // Export interfaces for use in other files like UCCForm.tsx
 export interface BaseMaintenanceFormData {

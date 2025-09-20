@@ -6,10 +6,12 @@ module.exports = function (api) {
       "nativewind/babel",
     ],
      plugins: [
+      // Add worklets plugin BEFORE reanimated
+      'react-native-worklets/plugin',
       // Expo Router must come AFTER NativeWind
       "expo-router/babel",
-      'react-native-worklets/plugin',
-    'react-native-reanimated/plugin'
+      
+    'react-native-reanimated/plugin',
      
      ]
   };
